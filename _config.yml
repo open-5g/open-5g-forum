@@ -19,6 +19,7 @@ exclude:
   - REDISTRIBUTED.md
   - purgecss.config.js
   - jekyll-theme-conference.gemspec
+  - vendor
 
 # Collections and their defaults
 collections:
