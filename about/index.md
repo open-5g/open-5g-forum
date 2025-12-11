@@ -10,7 +10,7 @@ This event is organized by a team at the Institute for the Wireless Internet of 
 - [Leonardo Bonati](/open-5g-forum/speakers/leonardo-bonati)
 
 
-- [Tommaso Melodia](https://ece.northeastern.edu/wineslab/tmelodia.php)
+- [Tommaso Melodia](https://wineslab.github.io/team/tommaso-melodia)
 - [Stefano Basagni](https://ece.northeastern.edu/fac-ece/basagni/people.html)
 - [Abhimanyu (Manu) Gosain](https://coe.northeastern.edu/people/gosain-manu/)
 
