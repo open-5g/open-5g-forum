@@ -10,23 +10,26 @@ name: Generate Website and add as Release
 #   - Builds the website
 #   - Compresses the generated website
 #   - Packages the generated website
-#   - Creates a release based on the originating tag
+#   - Creates (or updates) the release for the originating tag
 #   - Attaches the package to the release
+permissions:
+  contents: write
+
 jobs:
   build:
     name: Generate Website and add as Release
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04 # ruby 3.1 has no builds for ubuntu-26.04 (ubuntu-latest)
     steps:
 
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           lfs: true
 
       - name: Setup Ruby, Bundler and Jekyll
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: 2.6
+          ruby-version: '3.1'
           bundler-cache: true
 
       - name: Build website
@@ -36,23 +39,23 @@ jobs:
       - name: Install Minify
         run: |
           sudo apt-get update
-          sudo apt-get install minify
+          sudo apt-get install -y minify
 
       - name: Compress entire website
         run: |
           minify --all --html-keep-document-tags --html-keep-end-tags -r -o _site/ _site/
 
       - name: Setup Node
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v4
         with:
-          node-version: '12'
+          node-version: '22'
 
       - name: Install PurgeCSS and Terser
         run: |
-          npm install -g purgecss
-          npm install -g terser
+          npm install -g purgecss terser
 
       - name: Compress CSS with PurgeCSS
+        if: hashFiles('purgecss.config.js') != ''
         run: |
           purgecss --config purgecss.config.js
 
@@ -66,23 +69,8 @@ jobs:
           zip -r ../website.zip *
           cd ../
 
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Create Release and upload zipped Website
+        uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          draft: false
-          prerelease: false
-
-      - name: Upload zipped Website as Release Asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./website.zip
-          asset_name: website.zip
-          asset_content_type: application/zip
+          name: Release ${{ github.ref_name }}
+          files: website.zip
